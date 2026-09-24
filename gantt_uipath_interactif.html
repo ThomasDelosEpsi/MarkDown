@@ -1,0 +1,254 @@
+<html>
+<head>
+    <meta charset="utf-light" />
+    <title>Gantt Projet Git/UiPath</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+    <h1 style="font-family: sans-serif; text-align: center;">Timeline Projet : Intégration Git (UiPath)</h1>
+    <div id="gantt-chart" style="height:900px; width:100%;"></div>
+
+    <script type------------------------------------------------------->
+    <script>
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}T00:00:00`;
+        }
+
+        // Fonction pour ajouter des jours à une date
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        // --- 2. VOS DONNÉES DE PROJET (Modifiez ici) ---
+
+        // Définition de la date de début du projet (Aujourd'hui)
+        // Note : J'utilise la date système du 28/10/2025 comme "aujourd'hui".
+        const projectStartDate = new Date("2025-10-28T00:00:00");
+
+        // Liste de vos tâches, descriptions, et assignations
+        // C'EST ICI QU'IL FAUT MODIFIER LES ASSIGNATIONS ET COMMENTAIRES
+        const projectData = [
+            {
+                task: "Ticket Déblocage Flux (T1)",
+                phase: "Phase 1 - Préparation",
+                start_week: 0, // Commence Semaine 0
+                duration_days: 14, // Durée de 2 semaines
+                assignee: "Josic", // Assignez (Quentin/Dimitri/Josic/Thomas/Erwan/Pol)
+                description: "Créer et suivre le ticket pour débloquer les flux réseaux/droits pour le POC.",
+                comments: "Tâche critique. Tout le reste en dépend."
+            },
+            {
+                task: "Atelier Règles Draft (T2)",
+                phase: "Phase 1 - Préparation",
+                start_week: 0, // Commence Semaine 0
+                duration_days: 7,
+                assignee: "Pol",
+                description: "Animer l'atelier pour définir les conventions de nommage des branches, format des commits, etc.",
+                comments: "Préparer un support de présentation."
+            },
+            {
+                task: "Définir Périmètre POC (T3)",
+                phase: "Phase 1 - Préparation",
+                start_week: 1, // Commence Semaine 1
+                duration_days: 7,
+                assignee: "Dimitri",
+                description: "Choisir 1 ou 2 processus (simple/moyen) pour le POC et définir les critères de succès.",
+                comments: ""
+            },
+            // --- PHASE 2 ---
+            {
+                task: "POC P1 - Tests Initiaux",
+                phase: "Phase 2 - Exécution POC",
+                start_week: 2, // Commence Semaine 2
+                duration_days: 7,
+                assignee: "Quentin",
+                description: "Premier test de 'push' d'un processus vers GitHub et vérifier la synchro Automation Ops.",
+                comments: "Dépend du Ticket (T1)."
+            },
+            {
+                task: "Analyse Pipelines (T3.1)",
+                phase: "Phase 2 - Exécution POC",
+                start_week: 2, // Commence Semaine 2
+                duration_days: 7,
+                assignee: "Thomas",
+                description: "Analyser la pipeline CI/CD par défaut. Est-elle modifiable ? Que fait-elle ?",
+                comments: "Documenter les options."
+            },
+            {
+                task: "POC P2 - Tests Workflow (T4.2)",
+                phase: "Phase 2 - Exécution POC",
+                start_week: 3, // Commence Semaine 3
+                duration_days: 7,
+                assignee: "Quentin",
+                description: "Simuler un workflow complet : Branche -> Push -> Pull Request -> Merge.",
+                comments: ""
+            },
+            {
+                task: "Analyse Déploiement (T3.2)",
+                phase: "Phase 2 - Exécution POC",
+                start_week: 3, // Commence Semaine 3
+                duration_days: 7,
+                assignee: "Thomas",
+                description: "Tester comment la pipeline gère les déploiements (Dev, Test, Prod).",
+                comments: ""
+            },
+            {
+                task: "POC P3 - Validation (T4.3)",
+                phase: "Phase 2 - Exécution POC",
+                start_week: 4, // Commence Semaine 4
+                duration_days: 7,
+                assignee: "Quentin",
+                description: "Finaliser les tests, y compris les cas d'échec (merge conflict, test qui échoue).",
+                comments: "Valider les critères de succès."
+            },
+            {
+                task: "Rédaction Compte-rendu",
+                phase: "Phase 2 - Exécution POC",
+                start_week: 4, // Commence Semaine 4
+                duration_days: 7,
+                assignee: "Dimitri",
+                description: "Rédiger le compte-rendu du POC (résultats, points bloquants, limitations).",
+                comments: ""
+            },
+            // --- PHASE 3 ---
+            {
+                task: "Atelier Règles Final (T2.F)",
+                phase: "Phase 3 - Finalisation",
+                start_week: 5, // Commence Semaine 5
+                duration_days: 7,
+                assignee: "Pol",
+                description: "Finaliser les règles communes et bonnes pratiques basées sur les retours du POC.",
+                comments: ""
+            },
+            {
+                task: "Guide Bonnes Pratiques",
+                phase: "Phase 3 - Finalisation",
+                start_week: 5, // Commence Semaine 5
+                duration_days: 7,
+                assignee: "Pol",
+                description: "Rédiger le 'Guide des bonnes pratiques Git pour UiPath' pour l'équipe.",
+                comments: ""
+            },
+            {
+                task: "Préparation Démo (T5.1)",
+                phase: "Phase 3 - Finalisation",
+                start_week: 6, // Commence Semaine 6
+                duration_days: 7,
+                assignee: "Dimitri",
+                description: "Préparer le scénario de la démonstration pour le management.",
+                comments: ""
+            },
+            {
+                task: "Exécution Démo (T5.2)",
+                phase: "Phase 3 - Finalisation",
+                start_week: 7, // Commence Semaine 7 (décalé pour la démo)
+                duration_days: 7,
+                assignee: "Dimitri",
+                description: "Réaliser la démonstration aux parties prenantes.",
+                comments: "Réserver la salle."
+            },
+            {
+                task: "Bilan & Plan Déploiement",
+                phase: "Phase 3 - Finalisation",
+                start_week: 7, // Commence Semaine 7
+                duration_days: 7,
+                assignee: "Erwan",
+                description: "Préparer un plan de déploiement (roadmap) pour le 'roll-out' de la solution.",
+                comments: "Erwan, en tant que manager, prépare le plan."
+            },
+            {
+                task: "Clôture POC",
+                phase: "Phase 3 - Finalisation",
+                start_week: 7, // Commence Semaine 7
+                duration_days: 7,
+                assignee: "Erwan",
+                description: "Clôture administrative et bilan final du projet POC.",
+                comments: ""
+            }
+        ];
+
+        // --- 3. PRÉPARATION DES DONNÉES POUR PLOTLY (Ne pas modifier) ---
+
+        const phases = ["Phase 1 - Préparation", "Phase 2 - Exécution POC", "Phase 3 - Finalisation"];
+        const colors = ["#dc3545", "#EF553B", "#00cc96"]; // Couleurs pour chaque phase
+
+        let plotlyTraces = [];
+
+        // Créer une "trace" Plotly pour chaque phase
+        phases.forEach((phase, index) => {
+            const trace = {
+                y: [], // Noms des tâches
+                x: [], // Durées (en millisecondes)
+                base: [], // Dates de début
+                customdata: [], // Données supplémentaires
+                type: 'bar',
+                orientation: 'h',
+                name: phase,
+                marker: { color: colors[index] },
+                hovertemplate: 
+                    "<b>%{y}</b><br>" +
+                    "<b>Assigné: %{customdata[2]}</b><br>" +
+                    "Phase: %{customdata[0]}<br>" +
+                    "Durée: %{customdata[1]} jours<br>" +
+                    "Début: %{base|%d %b %Y}<br>" +
+                    "<i>Description: %{customdata[3]}</i><br>" +
+                    "<i>Commentaire: %{customdata[4]}</i>" +
+                    "<extra></extra>" // Supprime les infos de trace par défaut
+            };
+            plotlyTraces.push(trace);
+        });
+
+        // Remplir les traces avec les données du projet
+        projectData.forEach(task => {
+            const phaseIndex = phases.indexOf(task.phase);
+            if (phaseIndex !== -1) {
+                const trace = plotlyTraces[phaseIndex];
+                
+                const startDate = addDays(projectStartDate, task.start_week * 7);
+                const duration_ms = task.duration_days * 24 * 60 * 60 * 1000;
+                
+                trace.y.push(task.task);
+                trace.x.push(duration_ms);
+                trace.base.push(formatDate(startDate));
+                trace.customdata.push([
+                    task.phase,
+                    task.duration_days,
+                    task.assignee || "Non assigné", // Valeur par défaut
+                    task.description || "Aucune description",
+                    task.comments || "Aucun commentaire"
+                ]);
+            }
+        });
+
+        // --- 4. CONFIGURATION ET AFFICHAGE DU GRAPHIQUE (Ne pas modifier) ---
+
+        const layout = {
+            title: 'Timeline Projet : Intégration Git (UiPath) — 8 Semaines (Interactif)',
+            xaxis: {
+                type: 'date',
+                title: 'Date',
+                tickformat: '%d %b %Y', // Format de l'axe X
+                dtick: "W1" // Une graduation par semaine
+            },
+            yaxis: {
+                autorange: 'reversed' // Affiche la première tâche en haut
+            },
+            barmode: 'overlay', // Superpose les barres (chaque phase est une trace)
+            legend: {
+                title: { text: "Phases du Projet" },
+                tracegroupgap: 10 // Espace entre les légendes
+            }
+        };
+
+        // Dessiner le graphique !
+        Plotly.newPlot('gantt-chart', plotlyTraces, layout, {responsive: true});
+
+    </script>
+</body>
+</html>
